@@ -42,8 +42,8 @@ int main(int argc, char** argv)
   std::cout << "Yaw: " << fleet_to_rmf_yaw << std::endl << std::endl;
 
   // manual tuning for correctness
-  double scale_x = 1.078;
-  double scale_y = 1.078;
+  double scale_y = 1.07709;
+  double scale_x = 1.07709;
   double x = 4.834;
   double y = -29.3;
 
@@ -54,11 +54,9 @@ int main(int argc, char** argv)
   double sin = std::sin(fleet_to_rmf_yaw);
   Eigen::Matrix3d hom_rot;
   hom_rot << cos, -sin, 0.0, sin, cos, 0.0, 0.0, 0.0, 1.0;
-  std::cout << "Hom_rot: " << std::endl << hom_rot << std::endl << std::endl;
 
   Eigen::Matrix3d hom_trans;
   hom_trans << 1.0, 0.0, x, 0.0, 1.0, y, 0.0, 0.0, 1.0;
-  std::cout << "Hom_trans: " << std::endl << hom_trans << std::endl << std::endl;
 
   Eigen::Matrix3d hom = hom_trans * (hom_rot * scale_mat);
   std::cout << "hom: " << std::endl << hom;
