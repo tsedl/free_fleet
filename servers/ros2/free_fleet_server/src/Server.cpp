@@ -147,10 +147,15 @@ void Server::start()
   fleet_to_rmf_transform = math::convert(server_config.transformation);
   rmf_to_fleet_transform = fleet_to_rmf_transform.inverse();
 
-  Eigen::Vector3d fleet_unit_vector(1.0, 0.0, 1.0);
-  Eigen::Vector3d rmf_unit_vector = fleet_to_rmf_transform * fleet_unit_vector;
-  rmf_unit_vector /= rmf_unit_vector[2];
-  fleet_to_rmf_yaw = std::atan(-rmf_unit_vector[0] / rmf_unit_vector[1]);
+  Eigen::Vector3d pt1(0.0, 0.0, 1.0);
+  Eigen::Vector3d pt2(1.0, 0.0, 1.0);
+  Eigen::Vector3d trans_pt1 = fleet_to_rmf_transform * pt1;
+  trans_pt1 /= trans_pt1[2];
+  Eigen::Vector3d trans_pt2 = fleet_to_rmf_transform * pt2;
+  trans_pt2 /= trans_pt2[2];
+
+  fleet_to_rmf_yaw = 
+      std::atan((trans_pt2[1] - trans_pt1[1]) / (trans_pt2[0] - trans_pt1[0]));
 
   update_callback_group = create_callback_group(
       rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);

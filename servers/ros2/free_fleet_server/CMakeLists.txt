@@ -46,6 +46,15 @@ target_link_libraries(free_fleet_server
 
 # -----------------------------------------------------------------------------
 
+add_executable(test_transforms
+  tests/test_transforms.cpp
+)
+target_link_libraries(test_transforms
+  Eigen3::Eigen
+)
+
+# -----------------------------------------------------------------------------
+
 install(
   DIRECTORY
     launch
@@ -53,7 +62,7 @@ install(
 )
 
 install(
-  TARGETS free_fleet_server
+  TARGETS free_fleet_server test_transforms
   EXPORT
   RUNTIME DESTINATION lib/free_fleet_server
   LIBRARY DESTINATION lib
