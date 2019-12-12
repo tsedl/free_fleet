@@ -17,6 +17,8 @@
 
 #include <chrono>
 
+#include <geometry_msgs/msg/transform_stamped.hpp>
+
 #include "Server.hpp"
 
 #include "dds_utils/common.hpp"

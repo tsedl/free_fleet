@@ -30,6 +30,8 @@
 
 #include <rcl_interfaces/msg/parameter_event.hpp>
 
+#include <tf2_ros/transform_broadcaster.h>
+
 #include <rmf_fleet_msgs/msg/location.hpp>
 #include <rmf_fleet_msgs/msg/robot_state.hpp>
 #include <rmf_fleet_msgs/msg/fleet_state.hpp>
@@ -82,6 +84,8 @@ private:
   rclcpp::callback_group::CallbackGroup::SharedPtr update_callback_group;
 
   rclcpp::callback_group::CallbackGroup::SharedPtr fleet_callback_group;
+
+
 
   // --------------------------------------------------------------------------
 
