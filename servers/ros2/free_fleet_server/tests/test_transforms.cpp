@@ -42,9 +42,13 @@ int main(int argc, char** argv)
   std::cout << "Yaw: " << fleet_to_rmf_yaw << std::endl << std::endl;
 
   // manual tuning for correctness
-  double scale = 1.07;
-  double x = 4.534;
-  double y = -27.3;
+  double scale_x = 1.078;
+  double scale_y = 1.078;
+  double x = 4.834;
+  double y = -29.3;
+
+  Eigen::Matrix3d scale_mat;
+  scale_mat << scale_x, 0.0, 0.0, 0.0, scale_y, 0.0, 0.0, 0.0, 1.0;
 
   double cos = std::cos(fleet_to_rmf_yaw);
   double sin = std::sin(fleet_to_rmf_yaw);
@@ -56,9 +60,27 @@ int main(int argc, char** argv)
   hom_trans << 1.0, 0.0, x, 0.0, 1.0, y, 0.0, 0.0, 1.0;
   std::cout << "Hom_trans: " << std::endl << hom_trans << std::endl << std::endl;
 
-  Eigen::Matrix3d hom = hom_trans * (hom_rot * scale);
+  Eigen::Matrix3d hom = hom_trans * (hom_rot * scale_mat);
   std::cout << "hom: " << std::endl << hom;
   std::cout << std::endl << std::endl;
+
+  // checking with some random point
+  double rand_x = 687.53284;
+  double rand_y = 82.48;
+  double rand_yaw = 1.234;
+
+  Eigen::Vector3d pt(rand_x, rand_y, 1.0);
+  Eigen::Vector3d trans_pt = fleet_to_rmf_transform * pt;
+  trans_pt /= trans_pt[2];  
+  
+  // checking those values using the newest commit's calculations
+  const auto scaled = Eigen::Vector2d(rand_x * scale_x, rand_y * scale_y);
+  const auto rotated = Eigen::Rotation2D<double>(fleet_to_rmf_yaw) * scaled;
+  const auto translated = rotated + Eigen::Vector2d(x, y);
+  
+  std::cout << "Using transformation matrix: " << trans_pt.transpose() << std::endl;
+  std::cout << "Using step-by-step:          " << translated.transpose() 
+      << std::endl;
 
   return 0;
 }
