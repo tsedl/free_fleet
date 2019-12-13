@@ -19,6 +19,7 @@
 
 #include <Eigen/Geometry>
 
+
 int main(int argc, char** argv)
 {
   Eigen::Matrix3d fleet_to_rmf_transform;
@@ -42,13 +43,12 @@ int main(int argc, char** argv)
   std::cout << "Yaw: " << fleet_to_rmf_yaw << std::endl << std::endl;
 
   // manual tuning for correctness
-  double scale_y = 1.07709;
-  double scale_x = 1.07709;
+  double scale = 1.07709;
   double x = 4.834;
   double y = -29.3;
 
   Eigen::Matrix3d scale_mat;
-  scale_mat << scale_x, 0.0, 0.0, 0.0, scale_y, 0.0, 0.0, 0.0, 1.0;
+  scale_mat << scale, 0.0, 0.0, 0.0, scale, 0.0, 0.0, 0.0, 1.0;
 
   double cos = std::cos(fleet_to_rmf_yaw);
   double sin = std::sin(fleet_to_rmf_yaw);
@@ -66,19 +66,36 @@ int main(int argc, char** argv)
   double rand_x = 687.53284;
   double rand_y = 82.48;
   double rand_yaw = 1.234;
+  std::cout << "Random pt: " << rand_x << " " << rand_y << " " << rand_yaw
+      << std::endl;
 
   Eigen::Vector3d pt(rand_x, rand_y, 1.0);
   Eigen::Vector3d trans_pt = fleet_to_rmf_transform * pt;
   trans_pt /= trans_pt[2];  
   
   // checking those values using the newest commit's calculations
-  const auto scaled = Eigen::Vector2d(rand_x * scale_x, rand_y * scale_y);
+  const auto scaled = Eigen::Vector2d(rand_x * scale, rand_y * scale);
   const auto rotated = Eigen::Rotation2D<double>(fleet_to_rmf_yaw) * scaled;
   const auto translated = rotated + Eigen::Vector2d(x, y);
   
   std::cout << "Using transformation matrix: " << trans_pt.transpose() << std::endl;
   std::cout << "Using step-by-step:          " << translated.transpose() 
       << std::endl;
+
+  // comparing inverse transform results
+  Eigen::Matrix3d rmf_to_fleet_transform = fleet_to_rmf_transform.inverse();
+  std::cout << "Inverse Transform: " << std::endl;
+  std::cout << rmf_to_fleet_transform << std::endl << std::endl;
+
+  Eigen::Vector3d original_pt = rmf_to_fleet_transform * trans_pt;
+
+  const auto translated_back = translated - Eigen::Vector2d(x, y);
+  const auto rotated_back = 
+      Eigen::Rotation2D<double>(-fleet_to_rmf_yaw) * translated_back;
+  const auto scaled_back = 1.0 / scale * rotated_back;
+
+  std::cout << "Using inv trans. matrix: " << original_pt.transpose() << std::endl;
+  std::cout << "Using step-by-step:      " << scaled_back.transpose() << std::endl;
 
   return 0;
 }
