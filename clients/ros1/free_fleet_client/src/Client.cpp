@@ -238,6 +238,13 @@ uint32_t Client::get_robot_mode()
         current_robot_transform, previous_robot_transform))
       return FreeFleetData_RobotMode_Constants_MODE_MOVING;
   }
+
+  /// Checks if the robot is waiting
+  {
+    ReadLock goal_path_lock(goal_path_mutex);
+    if (ros::Time::now() < goal_path.front().wait_at_goal_time)
+      return FreeFleetData_RobotMode_Constants_MODE_WAITING;
+  }
   
   /// Otherwise, robot is neither charging nor moving,
   /// Checks if the robot is paused
