@@ -17,6 +17,7 @@ find_package(builtin_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rmf_fleet_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(cyclonedds_cmake_module REQUIRED)
 find_package(CycloneDDS QUIET CONFIG)
@@ -38,6 +39,9 @@ add_executable(free_fleet_server
 ament_target_dependencies(free_fleet_server
   rclcpp
   rmf_fleet_msgs
+  geometry_msgs
+  tf2_geometry_msgs
+  tf2_ros
 )
 target_link_libraries(free_fleet_server
   CycloneDDS::ddsc

@@ -85,7 +85,7 @@ private:
 
   rclcpp::callback_group::CallbackGroup::SharedPtr fleet_callback_group;
 
-
+  std::shared_ptr<tf2_ros::TransformBroadcaster> fleet_tf_broadcaster;
 
   // --------------------------------------------------------------------------
 

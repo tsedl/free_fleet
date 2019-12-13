@@ -18,6 +18,7 @@
 #include <chrono>
 
 #include <geometry_msgs/msg/transform_stamped.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include "Server.hpp"
 
@@ -145,6 +146,8 @@ bool Server::is_ready()
 
 void Server::start()
 {
+  fleet_tf_broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+
   update_callback_group = create_callback_group(
       rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
 
@@ -264,6 +267,19 @@ void Server::update_state_callback()
           "registered a new robot, name: " + ros_robot_state.name);
 
     robot_states[ros_robot_state.name] = ros_robot_state;
+
+    // Publish a very basic transform of the robot in this fleet
+    geometry_msgs::msg::TransformStamped tmp_tf_stamped;
+    tmp_tf_stamped.header.frame_id = ros_robot_state.name;
+    tmp_tf_stamped.header.stamp = ros_robot_state.location.t;
+    tmp_tf_stamped.child_frame_id = "map";
+    tmp_tf_stamped.transform.translation.x = ros_robot_state.location.x;
+    tmp_tf_stamped.transform.translation.y = ros_robot_state.location.y;
+    tmp_tf_stamped.transform.translation.z = 0.0;
+    tf2::Quaternion quat;
+    quat.setRPY(0.0, 0.0, ros_robot_state.location.yaw);
+    tmp_tf_stamped.transform.rotation = tf2::toMsg(quat);
+    fleet_tf_broadcaster->sendTransform(tmp_tf_stamped);
   }
 }
 
