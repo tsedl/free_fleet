@@ -452,7 +452,7 @@ void Client::read_requests()
           - current_robot_transform.transform.translation.y;
       const double dist_to_first_waypoint = sqrt(dx*dx + dy*dy);
       ROS_INFO("distance to first waypoint: %.2f\n", dist_to_first_waypoint);
-      const double max_dist_to_first_waypoint = 1.0;  // parameterize?
+      const double max_dist_to_first_waypoint = 10.0;  // parameterize?
       if (dist_to_first_waypoint > max_dist_to_first_waypoint)
       {
         ROS_ERROR(
