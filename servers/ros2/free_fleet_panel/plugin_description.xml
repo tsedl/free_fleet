@@ -1,0 +1,9 @@
+<library path="/libfree_fleet_panel">
+  <class name="free_fleet_panel/FreeFleetPanel"
+         type="free_fleet::viz::FreeFleetPanel"
+         base_class_type="rviz_common::Panel">
+    <description>
+      A panel widget that allows managing Free Fleet robots over rviz2.
+    </description>
+  </class>
+</library>
