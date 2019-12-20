@@ -12,6 +12,10 @@
   <depend>rclcpp</depend>
   <depend>rmf_fleet_msgs</depend>
   <depend>rviz_common</depend>
+  <depend>visualization_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2</depend>
 
   <test_depend>ament_lint_common</test_depend>
 

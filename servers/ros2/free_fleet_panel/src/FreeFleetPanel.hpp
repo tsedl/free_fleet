@@ -20,12 +20,27 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <rmf_fleet_msgs/msg/robot_mode.hpp>
+#include <rmf_fleet_msgs/msg/robot_state.hpp>
 #include <rmf_fleet_msgs/msg/fleet_state.hpp>
 
 #include <rviz_common/panel.hpp>
 
-#include <QPushButton>
+#include <visualization_msgs/msg/marker.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
+
+#include <std_msgs/msg/color_rgba.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+
+#include <QLabel>
+#include <QString>
+#include <QGroupBox>
+#include <QComboBox>
+#include <QLineEdit>
+
+#include <mutex>
+#include <unordered_map>
 
 namespace free_fleet
 {
@@ -39,22 +54,78 @@ Q_OBJECT
 
 public:
 
-  using RobotMode = rmf_fleet_msgs::msg::RobotMode;
+  using ReadLock = std::unique_lock<std::mutex>;
+  using WriteLock = std::unique_lock<std::mutex>;
+
+  using RobotState = rmf_fleet_msgs::msg::RobotState;
   using FleetState = rmf_fleet_msgs::msg::FleetState;
+
+  using Marker = visualization_msgs::msg::Marker;
+  using MarkerArray = visualization_msgs::msg::MarkerArray;
+
+  using ColorRGBA = std_msgs::msg::ColorRGBA;
+  using Point = geometry_msgs::msg::Point;
+  using Vector3 = geometry_msgs::msg::Vector3;
+  using Pose = geometry_msgs::msg::Pose;
 
   FreeFleetPanel(QWidget* parent = 0);
 
-protected:
+public Q_SLOTS:
 
-  QPushButton* test_push_button;
+  void set_fleet_name(const QString& fleet_name);
 
-  rclcpp::Publisher<RobotMode>::SharedPtr robot_mode_pub;
+protected Q_SLOTS:
+
+  void update_fleet_name();
+
+private:
+
+  /// Fleet name group
+  QGroupBox* fleet_name_group_box;
+  QLineEdit* fleet_name_editor;
+
+  /// Changes the targetted robot for the request
+  QGroupBox* robot_name_group_box;
+  QComboBox* robot_name_combo;
+  QString default_robot_name_selection;
+
+  /// Changes according to the selected mode
+  QComboBox* mode_selection_combo;
+
+  /// Changes according to the selected destination
+  QLabel* destination_display;
+
+  /// Changes according to the selected path
+  QLabel* path_display;
+
+  // ---------------------------------------------------------------------------
+  /// Group creation helper functions
+
+  void create_fleet_name_group();
+
+  void create_robot_name_group();
+
+  void create_request_group();
+
+  // ---------------------------------------------------------------------------
+  /// Internal states
+
+  std::mutex fleet_name_mutex;
+  QString fleet_name;
+
+  std::mutex robot_states_mutex;
+  std::unordered_map<std::string, RobotState> robot_states;
+
+  // ---------------------------------------------------------------------------
+  /// ROS components
 
   rclcpp::Subscription<FleetState>::SharedPtr fleet_state_sub;
 
+  rclcpp::Publisher<MarkerArray>::SharedPtr marker_array_pub;
+
   void fleet_state_cb_fn(FleetState::UniquePtr msg);
 
-  void publish_robot_mode();
+  void publish_marker_array();
 
 };
 
