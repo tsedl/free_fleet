@@ -38,6 +38,7 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QLineEdit>
+#include <QVBoxLayout>
 
 #include <mutex>
 #include <unordered_map>
@@ -84,18 +85,24 @@ private:
   QGroupBox* fleet_name_group_box;
   QLineEdit* fleet_name_editor;
 
-  /// Changes the targetted robot for the request
+  /// Robot name, move-to and follow group
   QGroupBox* robot_name_group_box;
   QComboBox* robot_name_combo;
   QString default_robot_name_selection;
 
-  /// Changes according to the selected mode
+  /// Robot request group
+  QGroupBox* request_group_box;
+  QVBoxLayout* request_group_layout;
+
+  /// Robot mode request subgroup
   QComboBox* mode_selection_combo;
 
-  /// Changes according to the selected destination
+  /// Robot destination request subgroup
+  QGroupBox* destination_request_group_box;
   QLabel* destination_display;
 
-  /// Changes according to the selected path
+  /// Robot path request subgroup
+  QGroupBox* path_request_group_box;
   QLabel* path_display;
 
   // ---------------------------------------------------------------------------
@@ -106,6 +113,12 @@ private:
   void create_robot_name_group();
 
   void create_request_group();
+
+  void create_mode_request_subgroup();
+
+  void create_destination_request_subgroup();
+
+  void create_path_request_subgroup();
 
   // ---------------------------------------------------------------------------
   /// Internal states

@@ -17,11 +17,15 @@
 
 #include "FreeFleetPanel.hpp"
 
+#include <rclcpp/node_options.hpp>
+
 #include <tf2/LinearMath/Quaternion.h>
 
 #include <QFrame>
+#include <QWidget>
 #include <QSplitter>
-#include <QVBoxLayout>
+#include <QGroupBox>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
 
@@ -32,29 +36,12 @@ namespace viz
 
 FreeFleetPanel::FreeFleetPanel(QWidget* parent) :
   rviz_common::Panel(parent),
-  Node("free_fleet_panel_node")
+  Node(
+      "free_fleet_panel_node", 
+      rclcpp::NodeOptions()
+          .allow_undeclared_parameters(true)
+          .automatically_declare_parameters_from_overrides(true))
 {
-  /// Horizontal layout for selecting requested mode and sending request
-  // QHBoxLayout* mode_request_layout = new QHBoxLayout;
-  // QStringList mode_list = {"Select Mode", "Pause", "Resume", "Emergency"};
-  // mode_selection_combo = new QComboBox(this);
-  // mode_selection_combo->addItems(mode_list);
-  // QPushButton* send_mode_request_button = new QPushButton("Send Request", this);
-  // mode_request_layout->addWidget(new QLabel("Mode:", this));
-  // mode_request_layout->addWidget(mode_selection_combo);
-  // mode_request_layout->addWidget(send_mode_request_button);
-
-  /// Horizontal layout for destination request
-  // QHBoxLayout* destination_request_layout = new QHBoxLayout;
-  // QPushButton* destination_selection_button = 
-  //     new QPushButton("Select Destination", this);
-  // destination_display = new QLabel("TODO", this);
-  // QPushButton* send_destination_request_button =
-  //     new QPushButton("Send Request", this);
-  // destination_request_layout->addWidget(destination_selection_button);
-  // destination_request_layout->addWidget(destination_display);
-  // destination_request_layout->addWidget(send_destination_request_button);
-
   /// Horizontal layout for path request
   // QHBoxLayout* path_request_layout = new QHBoxLayout;
   // QPushButton* path_selection_button = new QPushButton("Select Path", this);
@@ -85,6 +72,7 @@ FreeFleetPanel::FreeFleetPanel(QWidget* parent) :
   QVBoxLayout* vertical_layout = new QVBoxLayout;
   vertical_layout->addWidget(fleet_name_group_box);
   vertical_layout->addWidget(robot_name_group_box);
+  vertical_layout->addWidget(request_group_box);
   vertical_layout->addWidget(test_push_button);
   setLayout(vertical_layout);
 
@@ -127,21 +115,19 @@ void FreeFleetPanel::update_fleet_name()
 void FreeFleetPanel::create_fleet_name_group()
 {
   fleet_name_group_box = new QGroupBox(tr("Fleet"));
-  QHBoxLayout* layout = new QHBoxLayout;
+  QGridLayout* layout = new QGridLayout(this);
+
   fleet_name_editor = new QLineEdit(this);
 
-  layout->addWidget(new QLabel(tr("Name:"), this));
-  layout->addWidget(fleet_name_editor);
-  // layout->addStretch();
+  layout->addWidget(new QLabel(tr("Name:"), this), 0, 0, 1, 1);
+  layout->addWidget(fleet_name_editor, 0, 1, 1, 4);
+  layout->addWidget(new QWidget(this), 0, 5, 1, 1);
 
   fleet_name_group_box->setLayout(layout);
 }
 
 void FreeFleetPanel::create_robot_name_group()
 {
-  robot_name_group_box = new QGroupBox(tr("Robot"));
-  QHBoxLayout* layout = new QHBoxLayout;
-
   default_robot_name_selection = tr("Select Robot");
   QStringList robot_name_list = {default_robot_name_selection};
 
@@ -151,11 +137,13 @@ void FreeFleetPanel::create_robot_name_group()
   QPushButton* move_to_button = new QPushButton(tr("Move To"), this);
   QPushButton* follow_button = new QPushButton(tr("Follow"), this);
 
-  layout->addWidget(new QLabel(tr("Name:")));
-  layout->addWidget(robot_name_combo);
-  layout->addWidget(move_to_button);
-  layout->addWidget(follow_button);
+  QGridLayout* layout = new QGridLayout(this);
+  layout->addWidget(new QLabel(tr("Name:"), this), 0, 0, 1, 1);
+  layout->addWidget(robot_name_combo, 0, 1, 1, 3);
+  layout->addWidget(move_to_button, 0, 4, 1, 1);
+  layout->addWidget(follow_button, 0, 5, 1, 1);
   
+  robot_name_group_box = new QGroupBox(tr("Robot"), this);
   robot_name_group_box->setLayout(layout);
 
   // TODO: button connections
@@ -163,7 +151,71 @@ void FreeFleetPanel::create_robot_name_group()
 
 void FreeFleetPanel::create_request_group()
 {
+  request_group_layout = new QVBoxLayout(this);
 
+  create_mode_request_subgroup();
+  create_destination_request_subgroup();
+  create_path_request_subgroup();
+
+  request_group_box = new QGroupBox(tr("Robot Requests"), this);
+  request_group_box->setLayout(request_group_layout);
+}
+
+void FreeFleetPanel::create_mode_request_subgroup()
+{
+  QLabel* mode_subgroup_label = new QLabel(tr("Mode:"), this);
+
+  QStringList mode_list = {"Select Mode", "Pause", "Resume", "Emergency"};
+  mode_selection_combo = new QComboBox(this);
+  mode_selection_combo->addItems(mode_list);
+
+  QPushButton* send_request_button = new QPushButton(tr("Send"), this);
+
+  QGridLayout* layout = new QGridLayout(this);
+  layout->addWidget(mode_subgroup_label, 0, 0, 1, 1);
+  layout->addWidget(mode_selection_combo, 1, 0, 1, 3);
+  layout->addWidget(new QWidget(this), 1, 3, 1, 2);
+  layout->addWidget(send_request_button, 1, 5, 1, 1);
+
+  QWidget* subgroup_widget = new QWidget(this);
+  subgroup_widget->setLayout(layout);
+  request_group_layout->addWidget(subgroup_widget);
+
+  // TODO: button connections
+}
+
+void FreeFleetPanel::create_destination_request_subgroup()
+{
+  QLabel* destination_subgroup_label = new QLabel(tr("Destination:"), this);
+
+  QPushButton* destination_selection_button = 
+      new QPushButton("Select Destination", this);
+
+  destination_display = new QLabel("TODO", this);
+
+  QPushButton* send_request_button = new QPushButton(tr("Send"), this);
+
+  QGridLayout* layout = new QGridLayout(this);
+  layout->addWidget(new QLabel(tr("Destination:"), this), 0, 0, 1, 1);
+
+  layout->addWidget(destination_selection_button, 1, 0, 1, 1);
+  layout->addWidget(new QWidget(this), 1, 1, 1, 1);
+  layout->addWidget(destination_display, 1, 2, 1, 3);
+  layout->addWidget(new QWidget(this), 1, 5, 1, 1);
+
+  layout->addWidget(new QWidget(this), 2, 0, 1, 5);
+  layout->addWidget(destination_display, 2, 5, 1, 1);
+
+  QWidget* subgroup_widget = new QWidget(this);
+  subgroup_widget->setLayout(layout);
+  request_group_layout->addWidget(subgroup_widget);
+
+  // TODO: button connections
+}
+
+void FreeFleetPanel::create_path_request_subgroup()
+{
+  
 }
 
 void FreeFleetPanel::fleet_state_cb_fn(FleetState::UniquePtr _msg)
