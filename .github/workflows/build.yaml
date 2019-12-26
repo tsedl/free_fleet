@@ -1,8 +1,7 @@
 name: build_ci
 on:
-  - push:
-    - branches: '*'
-  - schedule:
+  push
+  schedule:
     - cron: '* 23 * * *'
 
 jobs:
