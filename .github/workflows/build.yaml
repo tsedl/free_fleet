@@ -1,5 +1,5 @@
 name: build_ci
-on: push
+on: [push, schedule(* 23 * * *)]
 jobs:
 
   ros1:
