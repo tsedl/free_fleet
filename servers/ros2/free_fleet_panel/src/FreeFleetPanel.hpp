@@ -99,7 +99,12 @@ private:
 
   /// Robot destination request subgroup
   QGroupBox* destination_request_group_box;
-  QLabel* destination_display;
+  double destination_x;
+  double destination_y;
+  double destination_yaw;
+  QLabel* destination_x_display;
+  QLabel* destination_y_display;
+  QLabel* destination_yaw_display;
 
   /// Robot path request subgroup
   QGroupBox* path_request_group_box;

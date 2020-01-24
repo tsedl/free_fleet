@@ -28,6 +28,7 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QScrollArea>
 
 namespace free_fleet
 {
@@ -188,23 +189,26 @@ void FreeFleetPanel::create_destination_request_subgroup()
 {
   QLabel* destination_subgroup_label = new QLabel(tr("Destination:"), this);
 
-  QPushButton* destination_selection_button = 
-      new QPushButton("Select Destination", this);
-
-  destination_display = new QLabel("TODO", this);
-
+  QPushButton* destination_selection_button = new QPushButton("Select", this);
   QPushButton* send_request_button = new QPushButton(tr("Send"), this);
 
+  destination_x_display = new QLabel("", this);
+  destination_y_display = new QLabel("", this);
+  destination_yaw_display = new QLabel("", this);
+
   QGridLayout* layout = new QGridLayout(this);
-  layout->addWidget(new QLabel(tr("Destination:"), this), 0, 0, 1, 1);
+  layout->addWidget(destination_subgroup_label, 0, 0, 1, 1);
 
   layout->addWidget(destination_selection_button, 1, 0, 1, 1);
-  layout->addWidget(new QWidget(this), 1, 1, 1, 1);
-  layout->addWidget(destination_display, 1, 2, 1, 3);
-  layout->addWidget(new QWidget(this), 1, 5, 1, 1);
+  layout->addWidget(new QWidget(this), 1, 1, 1, 4);
+  layout->addWidget(send_request_button, 1, 5, 1, 1);
 
-  layout->addWidget(new QWidget(this), 2, 0, 1, 5);
-  layout->addWidget(destination_display, 2, 5, 1, 1);
+  layout->addWidget(new QLabel("x:", this), 2, 0, 1, 1);
+  layout->addWidget(destination_x_display, 2, 1, 1, 1);
+  layout->addWidget(new QLabel("y:", this), 2, 2, 1, 1);
+  layout->addWidget(destination_x_display, 2, 3, 1, 1);
+  layout->addWidget(new QLabel("yaw:", this), 2, 4, 1, 1);
+  layout->addWidget(destination_x_display, 2, 5, 1, 1);
 
   QWidget* subgroup_widget = new QWidget(this);
   subgroup_widget->setLayout(layout);
@@ -215,7 +219,32 @@ void FreeFleetPanel::create_destination_request_subgroup()
 
 void FreeFleetPanel::create_path_request_subgroup()
 {
+  QLabel* path_subgroup_label = new QLabel(tr("Path:"), this);
+
+  QPushButton* path_selection_button = new QPushButton("Select", this);
+  QPushButton* send_request_button = new QPushButton(tr("Send"), this);
+
+  // setup the scroll area
+  path_display = new QLabel("", this);
+  QScrollArea* path_display_scroll_area = new QScrollArea(this);
+  path_display_scroll_area->setWidget(path_display);
+
+  QGridLayout* layout = new QGridLayout(this);
+  layout->addWidget(path_subgroup_label, 0, 0, 1, 1);
+
+  layout->addWidget(path_selection_button, 1, 0, 1, 1);
+  layout->addWidget(new QWidget(this), 1, 1, 1, 4);
+  layout->addWidget(send_request_button, 1, 5, 1, 1);
+
+  layout->addWidget(path_display_scroll_area, 2, 0, 1, 6);
+
+  // add widget for scroll area
   
+  QWidget* subgroup_widget = new QWidget(this);
+  subgroup_widget->setLayout(layout);
+  request_group_layout->addWidget(subgroup_widget);
+
+  // TODO: button connections
 }
 
 void FreeFleetPanel::fleet_state_cb_fn(FleetState::UniquePtr _msg)
